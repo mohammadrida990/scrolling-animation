@@ -1,12 +1,45 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, useAnimation } from "framer-motion";
+import gsap from "gsap";
+import SplitText from "gsap/SplitText";
+
+gsap.registerPlugin(SplitText);
 
 const ContentPage = () => {
   const outerControls = useAnimation();
   const innerControls = useAnimation();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // now animate the characters in a staggered fashion
+
+  useEffect(() => {
+    const splitTitle = SplitText.create(".title", { type: "words, chars" });
+    const splitContent = SplitText.create(".content", {
+      type: "chars, words, lines",
+    });
+    gsap
+      .timeline()
+      .from(splitTitle.chars, {
+        duration: 1,
+        y: 100,
+        autoAlpha: 0,
+        stagger: 0.05,
+      })
+      .from(splitContent.chars, {
+        duration: 1,
+        rotation: "random(-360, 360)",
+        yPercent: "random([-100,100])",
+        y: 100,
+        autoAlpha: 0,
+        mask: "char",
+        stagger: {
+          amount: 0.5,
+          from: "random",
+        },
+      });
+  }, []);
 
   const handleMouseEnter = (e: React.MouseEvent) => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -59,9 +92,11 @@ const ContentPage = () => {
       className="flex flex-col md:flex-row md:justify-between items-center gap-4 min-h-screen"
     >
       <div className="order-1 md:order-0 mt-[150px] md:mt-0 text-center md:text-start w-[350px] md:w-[50%]">
-        <h1 className="text-sky-500 text-6xl">The Mysteries of the Moon</h1>
+        <h1 className="title text-sky-500 text-6xl">
+          The Mysteries of the Moon
+        </h1>
 
-        <p className="mt-5">
+        <p className="mt-5 content">
           The Moon, Earths only natural satellite, has fascinated humanity for
           centuries. Its luminous glow has inspired countless myths, stories,
           and scientific inquiries. Located about 384,400 kilometers from Earth,
